@@ -5,8 +5,8 @@ public class Trie {
 		root = new TrieNode();
 	}
 
-	// Insert a new word into the Trie
 	public void insert(String word) {
+		word = word.toLowerCase();
 		TrieNode node = root;
 		for (char c : word.toCharArray()) {
 			int index = c - 'a';
@@ -18,8 +18,8 @@ public class Trie {
 		node.setEndOfWord(true);
 	}
 
-	// Search for a word in the Trie
 	public boolean search(String word) {
+		word = word.toLowerCase();
 		TrieNode node = root;
 		for (char c : word.toCharArray()) {
 			int index = c - 'a';
@@ -31,8 +31,8 @@ public class Trie {
 		return node.isEndOfWord();
 	}
 
-	// Delete a word from the Trie
 	public void delete(String word) {
+		word = word.toLowerCase();
 		delete(root, word, 0);
 	}
 
@@ -67,5 +67,47 @@ public class Trie {
 			}
 		}
 		return true;
+	}
+
+	public boolean startsWith(String prefix) {
+		prefix = prefix.toLowerCase();
+		TrieNode node = root;
+		for (char c : prefix.toCharArray()) {
+			int index = c - 'a';
+			if (node.getChildren()[index] == null) {
+				return false;
+			}
+			node = node.getChildren()[index];
+		}
+		return true;
+	}
+
+	public StringArray autocomplete(String prefix) {
+		prefix = prefix.toLowerCase();
+		StringArray suggestions = new StringArray();
+		TrieNode node = root;
+		for (char c : prefix.toCharArray()) {
+			int index = c - 'a';
+			if (node.getChildren()[index] == null) {
+				return suggestions;
+			}
+			node = node.getChildren()[index];
+		}
+		findAllWords(node, suggestions, new CustomString(prefix));
+		return suggestions;
+	}
+
+	private void findAllWords(TrieNode node, StringArray words, CustomString currentWord) {
+		if (node.isEndOfWord()) {
+			words.add(currentWord.toString());
+		}
+		for (int i = 0; i < node.getChildren().length; i++) {
+			TrieNode child = node.getChildren()[i];
+			if (child != null) {
+				currentWord.append((char) (i + 'a'));
+				findAllWords(child, words, currentWord);
+				currentWord.deleteLastChar();
+			}
+		}
 	}
 }
